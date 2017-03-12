@@ -14,7 +14,6 @@ func Run(args []string) {
 	app := cli.NewApp()
 	app.Name = "count"
 	app.Version = "1.0.001"
-	app.Usage = "[-ef -p password]"
 	app.Action = countAction
 	app.EnableBashCompletion = true
 	app.Flags = []cli.Flag{
