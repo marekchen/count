@@ -1,5 +1,5 @@
-hash: 1715ea6aa3b6d33fe844cad5566b7a0b11604f7e3996ce2326fd70210bcd46f0
-updated: 2017-03-12T00:20:54.106649214+08:00
+hash: f18a59ac7a94dab280e4c2850fb416b73d527b37e43af4344da20a6e6dc7d6b9
+updated: 2017-03-12T21:32:43.137808149+08:00
 imports:
 - name: github.com/aisk/chrysanthemum
   version: 80f3bf4d1cc3347e13da0334807c5be16d3db652
@@ -7,10 +7,6 @@ imports:
   version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: github.com/fatih/color
   version: 9131ab34cf20d2f6d83fdc67168a5430d1c7dc23
-- name: github.com/leancloud/lean-cli
-  version: eec14d94d8c9955fc317ca5aa35c926a4cbcee53
-  subpackages:
-  - logo
 - name: github.com/mattn/go-colorable
   version: 5411d3eea5978e6cdc258b30de592b60df6aba96
   repo: https://github.com/mattn/go-colorable
@@ -18,8 +14,6 @@ imports:
   version: 30a891c33c7cde7b02a981314b4228ec99380cca
 - name: github.com/monochromegane/go-gitignore
   version: 38717d0a108ca0e5af632cd6845ca77d45b50729
-- name: github.com/pkg/browser
-  version: 9302be274faad99162b9d48ec97b24306872ebb0
 - name: golang.org/x/sys
   version: e24f485414aeafb646f6fca458b0bf869c0880a1
   repo: https://go.googlesource.com/sys

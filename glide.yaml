@@ -1,7 +1,6 @@
 package: github.com/marekchen/count
 import:
 - package: github.com/aisk/chrysanthemum
-- package: github.com/pkg/browser
 - package: github.com/fatih/color
   version: ^1.0.0
 - package: github.com/codegangsta/cli

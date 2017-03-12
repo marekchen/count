@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/codegangsta/cli"
-	"github.com/leancloud/lean-cli/logo"
+	"github.com/marekchen/count/logo"
 )
 
 // Run the command line
@@ -29,7 +29,7 @@ func Run(args []string) {
 		},
 		cli.StringFlag{
 			Name:  "suffix,s",
-			Usage: "后缀",
+			Usage: "指定后缀",
 		},
 	}
 
