@@ -24,7 +24,6 @@ func Run(args []string) {
 		cli.StringFlag{
 			Name:  "path,p",
 			Usage: "路径",
-			Value: "./",
 		},
 		cli.StringFlag{
 			Name:  "suffix,s",
@@ -49,14 +48,5 @@ func Run(args []string) {
 			},
 		},
 	}
-
-	//app.Before = func(c *cli.Context) error {
-	//	args := []string{"--_collect-stats"}
-	//	args = append(args, c.Args()...)
-	//	err := exec.Command(os.Args[0], args...).Start()
-	//	_ = err
-	//	return nil
-	//}
-
 	app.Run(args)
 }

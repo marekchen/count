@@ -19,21 +19,31 @@ func countAction(c *cli.Context) error {
 	suffix := c.String("suffix")
 
 	fmt.Printf("eachfolder：%t,path: %s,suffix: %s\r\n", eachfolder, path, suffix)
+	if path == "" {
+		path = getSrcFullPath()
+	}
 	abspath, err := filepath.Abs(path)
 	if err != nil {
 		panic(err)
 	}
-	println("abspath", abspath)
+	println("abs", abspath)
 	if eachfolder {
+		ignorefile := filepath.Join(abspath, ".gitignore")
+		ignores := new(list.List)
+		if PathExists(ignorefile) {
+			ignore, _ := gitignore.NewGitIgnore(ignorefile)
+			ignores.PushBack(ignore)
+		}
 		dirList := getDirList(abspath)
 		for e := dirList.Front(); nil != e; e = e.Next() {
 			path := e.Value.(string)
-			fileList := getList(path)
+			fileList := getList(path, ignores)
 			count := getLines(fileList, suffix)
 			fmt.Printf("Dir:%s; Lines:%d\r\n", filepath.Base(path), count)
 		}
 	} else {
-		fileList := getList(abspath)
+		ignores := new(list.List)
+		fileList := getList(abspath, ignores)
 		count := getLines(fileList, suffix)
 		fmt.Printf("Dir:%s; Lines:%d\r\n", filepath.Base(abspath), count)
 	}
@@ -43,11 +53,11 @@ func countAction(c *cli.Context) error {
 func getDirList(fullPath string) (lst list.List) {
 	dir, _ := ioutil.ReadDir(fullPath)
 	for _, fi := range dir {
-		ignorefile := fullPath + "/.gitignore"
-		absPath := fullPath + "/" + fi.Name()
+		ignorefile := filepath.Join(fullPath, ".gitignore")
+		absPath := filepath.Join(fullPath, fi.Name())
 		if PathExists(ignorefile) {
-			gitignore1, _ := gitignore.NewGitIgnore(ignorefile)
-			if gitignore1.Match(absPath, fi.IsDir()) {
+			ignore, _ := gitignore.NewGitIgnore(ignorefile)
+			if ignore.Match(absPath, fi.IsDir()) {
 				continue
 			}
 		}
@@ -58,22 +68,32 @@ func getDirList(fullPath string) (lst list.List) {
 			continue
 		}
 		if fi.IsDir() {
-			lst.PushBack(fullPath + "/" + fi.Name())
+			lst.PushBack(absPath)
 		}
 	}
 	return
 }
 
-func getList(fullPath string) (lst list.List) {
+func getList(fullPath string, ignores *list.List) (lst list.List) {
 	dir, _ := ioutil.ReadDir(fullPath)
 	for _, fi := range dir {
-		ignorefile := fullPath + "/.gitignore"
-		absPath := fullPath + "/" + fi.Name()
+		ignorefile := filepath.Join(fullPath, ".gitignore")
+		absPath := filepath.Join(fullPath, fi.Name())
 		if PathExists(ignorefile) {
-			gitignore1, _ := gitignore.NewGitIgnore(ignorefile)
-			if gitignore1.Match(absPath, fi.IsDir()) {
-				continue
+			ignore, _ := gitignore.NewGitIgnore(ignorefile)
+			ignores.PushBack(ignore)
+		}
+		match := false
+		for e := ignores.Front(); nil != e; e = e.Next() {
+			ignore := e.Value.(gitignore.IgnoreMatcher)
+			if ignore.Match(absPath, fi.IsDir()) {
+				match = true
+				break
 			}
+		}
+		if match {
+			//println("ignored:" + absPath)
+			continue
 		}
 		if strings.HasPrefix(fi.Name(), ".") {
 			continue
@@ -97,49 +117,11 @@ func getList(fullPath string) (lst list.List) {
 			continue
 		}
 		if fi.IsDir() {
-			list2 := getList(fullPath + "/" + fi.Name())
+			list2 := getList(absPath, ignores)
 			lst.PushBackList(&list2)
 		} else {
-			lst.PushBack(fullPath + "/" + fi.Name())
+			lst.PushBack(absPath)
 		}
-	}
-	return
-}
-
-func getFilelist(path string) (lst list.List) {
-	fullPath := GetSrcFullPath()
-	fmt.Println("fullPath:", fullPath)
-	err := filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
-
-		if f == nil {
-			return err
-		}
-		if f.IsDir() {
-			return nil
-		}
-		if filepath.Base(path) == ".gitignore" {
-			print("it's ignore file\n\r")
-			return nil
-		}
-
-		ignorefile := fullPath + "/.gitignore"
-		absPath := fullPath + "/" + path
-
-		if PathExists(ignorefile) {
-			gitignore1, _ := gitignore.NewGitIgnore(ignorefile)
-			if !gitignore1.Match(absPath, false) {
-				println("path:" + path)
-				lst.PushBack(path)
-			}
-		} else {
-			println(path)
-			lst.PushBack(path)
-		}
-
-		return nil
-	})
-	if err != nil {
-		fmt.Printf("filepath.Walk() returned %v\n", err)
 	}
 	return
 }
@@ -155,7 +137,7 @@ func PathExists(path string) (bool) {
 	return false
 }
 
-func GetSrcFullPath() (fullPath string) {
+func getSrcFullPath() (fullPath string) {
 	args := os.Args;
 	parameterLen := len(args)
 	if parameterLen == 1 {
@@ -168,7 +150,7 @@ func GetSrcFullPath() (fullPath string) {
 func getLines(lst list.List, suffix string) (count int) {
 	for e := lst.Front(); nil != e; e = e.Next() {
 		path := e.Value.(string)
-
+		//println(path)
 		if suffix != "" {
 			suffixlist := strings.Split(suffix, ",")
 			length := len(suffixlist)
